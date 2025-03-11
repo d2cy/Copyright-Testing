@@ -57,12 +57,14 @@ jobs:
         run: |
           jq '{files: [(.files[] | select(.copyrights | length > 0))]}' scancode-results.json > filtered-results.json
 
-      - name: Update Path to URL format
+      - name: Update Path to Unique URLs
         run: |
           jq --arg baseUrl "$BASE_URL" '
             {files: [ 
               .files[] | 
-              .URL = ($baseUrl + "/" + .path + "#L" + (.copyrights[0].start_line|tostring) + "-L" + (.copyrights[0].end_line|tostring)) 
+              .copyrights |= map(
+                .URL = ($baseUrl + "/" + input.path + "#" + (.start_line|tostring) + "-" + (.end_line|tostring))
+              )
               | del(.path)
             ]}' filtered-results.json > final-results.json
 

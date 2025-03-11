@@ -74,7 +74,26 @@ jobs:
         with:
           name: final-json
           path: final-results.json
-        
+      - name: Split JSON into Chunks of 10 Files Each
+        run: |
+          total_files=$(jq '.files | length' final-results.json)
+          chunk_size=10
+          chunk_index=0
+
+          mkdir -p json_chunks
+
+          for ((i=0; i<total_files; i+=chunk_size)); do
+            jq --argjson start "$i" --argjson size "$chunk_size" '
+              {files: (.files | .[$start:($start + $size)])}' final-results.json > "json_chunks/chunk_$chunk_index.json"
+            ((chunk_index++))
+          done
+
+      - name: Upload JSON Chunks as Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: json-chunks
+          path: json_chunks/
+          
       # - name: Extract Copyright Data
       #   env:
       #     BASE_URL: "${{ github.server_url }}/${{ github.repository }}/blob/${{ github.ref_name }}"  

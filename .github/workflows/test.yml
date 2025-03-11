@@ -70,7 +70,7 @@ jobs:
         run: cat final-results.json
 
       - name: Upload Processed JSON as Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: final-json
           path: final-results.json

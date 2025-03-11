@@ -53,24 +53,27 @@ jobs:
 
 ######################################################
 
-      - name: Filter Data
+      - name: Filter JSON Data (Remove empty copyrights)
         run: |
-        cat scancode-results.json | jq '{files: [.files[] | select(.copyrights | length > 0)]}' > tmp1.json
+          jq '{files: [(.files[] | select(.copyrights | length > 0))]}' scancode-results.json > filtered-results.json
 
-      - name: Upload Filtered Data1
-        uses: actions/upload-artifact@v4
-        with:
-          name: tmp1.json
-          path: tmp1.json
+      - name: Update Path to URL format
+        run: |
+          jq --arg baseUrl "$BASE_URL" '
+            {files: [ 
+              .files[] | 
+              .URL = ($baseUrl + "/" + .path + "#L" + (.copyrights[0].start_line|tostring) + "-L" + (.copyrights[0].end_line|tostring)) 
+              | del(.path)
+            ]}' filtered-results.json > final-results.json
 
-      - name: Filter Data2
-        run |
-        jq --arg baseUrl "$BASE_URL" '{files: [.files[] | .URL = ($baseUrl + .path) | del(.path)]}' tmp1.json > tmp2.json
-      - name: Upload Filtered Data1
-        uses: actions/upload-artifact@v4
+      - name: Show Processed JSON
+        run: cat final-results.json
+
+      - name: Upload Processed JSON as Artifact
+        uses: actions/upload-artifact@v3
         with:
-          name: tmp2.json
-          path: tmp2.json
+          name: final-json
+          path: final-results.json
         
       # - name: Extract Copyright Data
       #   env:

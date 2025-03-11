@@ -12,6 +12,8 @@ module.exports = {
   ]
 }
 
-/* Copyright Dxysjsddfhb
-hjkhjkjhkjh
+/* 
+Copyright (c) D2Cy
+Copyright (c) D2Cyfff
+Copyright (c) D2Cyhh
   */
